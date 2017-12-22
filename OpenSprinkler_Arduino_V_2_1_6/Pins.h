@@ -52,8 +52,8 @@ This way you can use expander for all functions (interrupt donot work right now)
 #define OTA_UPLOAD
 ////////////////////////////  I2C standard pins /////////////////////////
 
-#define SDA_PIN          D2       //:this is standard....it may be changed
-#define SCL_PIN          D1       //:this is standard  ---it may be chaNGED
+#define SDA_PIN          2       //:this is standard....it may be changed
+#define SCL_PIN          1       //:this is standard  ---it may be chaNGED
 #define OS_HW_VERSION    0.0      // it will define releases
 #else ////////////////////// flag for not compatible libraries ESP8266////// 
 #define SDFAT                                   // SD card on 
@@ -76,7 +76,7 @@ This way you can use expander for all functions (interrupt donot work right now)
 //                       PIN    ASSIGNEMENT
 //
 //////////////////////////////////////////////////////////////////////////
-#define PROTO 2     //board type selection
+#define PROTO 3     //board type selection
 /////////////////////////////////////////////////////////////////////////
 //////////////////////////////proto board 1////////////rear garden//////////////////////////////////
 #if PROTO==1 // shift register 
@@ -128,7 +128,9 @@ This way you can use expander for all functions (interrupt donot work right now)
 #define PIN_BUTTON_1 0
 #define PIN_BUTTON_2 2
 #define PIN_BUTTON_3 15
-#define BUT3_ON 1
+#define BUT1_ON 0 //PIN input:1= Vcc, 0= GND
+#define BUT2_ON 0 //PIN input:1= Vcc, 0= GND
+#define BUT3_ON 1 //PIN input:0= Vcc, 1= GND
 #define I2C_SHIFT_REG
 #define DUMMY_PIN 0x25  //dummy pin for unused functions
 #define LCD_ADDR 0x20    // following are pin of the I2c lcd expander
@@ -141,6 +143,7 @@ This way you can use expander for all functions (interrupt donot work right now)
 #define PIN_LCD_D7        5    // LCD d7 pin
 #define PIN_LCD_BACKLIGHT 4    // LCD backlight pin
 #define PIN_BACKLIGHT_MODE NEGATIVE //POSITIVE
+////////////////////////////////////////////prtotype n.4///////////////////////////////////////////////////////
 #elif PROTO==4
 #define PCF8574_M
 //#define OPENSPRINKLER_ARDUINO_W5100     //:required for ESP8266 not using shift registers
@@ -158,8 +161,9 @@ This way you can use expander for all functions (interrupt donot work right now)
 #define I2C_SHIFT_REG
 #define ADDITIONAL_SENSORS PCF8574_C        //:additional sensors on PCF8574 n.0 #elif PROTO==2
 
-#elif PROTO==5
+
 ///////////////////////////////new board/////////////////////////////////////
+#elif PROTO==5
 #define OPENSPRINKLER_ARDUINO_DISCRETE      //:no shift registers
 #define I2C_SHIFT_REG						//: stations on PCF8574 n.1...7  
 //#define BUTTON_ADC_PIN        A0                   //:digital buttons ---> IO n.on PCF8574 n.0 pins: Ox00 <>0x02

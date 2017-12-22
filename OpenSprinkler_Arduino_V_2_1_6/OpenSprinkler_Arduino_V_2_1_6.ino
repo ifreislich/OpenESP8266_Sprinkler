@@ -61,22 +61,25 @@ Original Opensprinkler code commences below here
 #include <EEPROM.h>
 #include <Arduino.h>
 #include "Config.h"
-#include "../Defines.h"
+#include "Defines.h"
 
-#include "../OpenSprinkler.h"
+#include "OpenSprinkler.h"
 
 #ifdef OPENSPRINKLER_ARDUINO
 
 	#include <Wire.h>
 #ifdef ESP8266
-#include <FS.h>
-//#include "../SPIFFSdFat.h"
-#include "../PCF8574Mio.h"
+
+//#include "SPIFFSdFat.h"
+#include "PCF8574Mio.h"
 #include <ESP8266mDNS.h>
+#ifndef SDFAT
+#include <FS.h>
 #else 
+#include <SD.h>
 #include <SdFat.h>
 #endif
-
+#endif
 
 	#include <Time.h>
 	#include <DS1307RTC.h>
@@ -99,10 +102,16 @@ Original Opensprinkler code commences below here
 #include <WiFiServer.h>
 #include <WiFiClientSecure.h>
 #include <WiFiClient.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h> 
+#ifdef OTA_UPLOAD
+#include <ArduinoOTA.h>
+#endif
 
 #endif
 //		#include <ICMPPing.h>
-		#include "../EtherCardW5100.h"
+		#include "EtherCardW5100.h"
 	#else
 		//#include <EtherCard.h>
 	#endif
@@ -144,13 +153,66 @@ void setup()
 #ifdef OPENSPRINKLER_ARDUINO_AUTOREBOOT // Added for Auto Reboot   
    Alarm.alarmRepeat ( REBOOT_HR, REBOOT_MIN, REBOOT_SEC, reboot );
 #endif // OPENSPRINKLER_ARDUINO_AUTOREBOOT
+#ifdef OTA_UPLOAD
+   // Port defaults to 8266
+   // ArduinoOTA.setPort(8266);
 
+   // Hostname defaults to esp8266-[ChipID]
+   // ArduinoOTA.setHostname("myesp8266");
+
+   // No authentication by default
+   // ArduinoOTA.setPassword((const char *)"123");
+
+   ArduinoOTA.onStart([]() {
+	  os.lcd.setBacklight(HIGH);
+    os.lcd.clear();
+    os.lcd.print("Firmware Update");
+   });
+   ArduinoOTA.onEnd([]() {
+	  os.lcd.clear();
+    os.lcd.print("Rebooting");
+   });
+   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+	  os.lcd.setCursor(0, 1);
+    os.lcd.print((progress / (total / 100)), 1);
+    os.lcd.print(" %");
+   });
+   ArduinoOTA.onError([](ota_error_t error) {
+	  os.lcd.clear();
+    os.lcd.print("Error[");
+    os.lcd.print(error);
+    os.lcd.print("]:");
+    os.lcd.setCursor(0, 1);
+    switch (error) {
+      case OTA_AUTH_ERROR:
+        os.lcd.print("Auth Failed");
+        break;
+      case OTA_BEGIN_ERROR:
+        os.lcd.print("Begin Failed");
+        break;
+      case OTA_CONNECT_ERROR:
+        os.lcd.print("Connect Failed");
+        break;
+      case OTA_RECEIVE_ERROR:
+        os.lcd.print("Receive Failed");
+        break;
+      case OTA_END_ERROR:
+        os.lcd.print("End Failed");
+        break;
+    }
+    delay(2000);
+   });
+   ArduinoOTA.begin();
+#endif
     do_setup();
 }
 
 void loop()
 {
 	DEBUG_COMMAND
+#ifdef OTA_UPLOAD
+		ArduinoOTA.handle();
+#endif
    do_loop();
 }
 
